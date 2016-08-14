@@ -13,6 +13,7 @@
 #include "inc_types.cl"
 #include "inc_common.cl"
 #include "inc_simd.cl"
+#include "mangle.cl"
 
 __kernel void m00000_m04 (__global pw_t *pws, __global kernel_rule_t *rules_buf, __global comb_t *combs_buf, __global bf_t *bfs_buf, __global void *tmps, __global void *hooks, __global u32 *bitmaps_buf_s1_a, __global u32 *bitmaps_buf_s1_b, __global u32 *bitmaps_buf_s1_c, __global u32 *bitmaps_buf_s1_d, __global u32 *bitmaps_buf_s2_a, __global u32 *bitmaps_buf_s2_b, __global u32 *bitmaps_buf_s2_c, __global u32 *bitmaps_buf_s2_d, __global plain_t *plains_buf, __global digest_t *digests_buf, __global u32 *hashes_shown, __global salt_t *salt_bufs, __global void *esalt_bufs, __global u32 *d_return_buf, __global u32 *d_scryptV0_buf, __global u32 *d_scryptV1_buf, __global u32 *d_scryptV2_buf, __global u32 *d_scryptV3_buf, const u32 bitmap_mask, const u32 bitmap_shift1, const u32 bitmap_shift2, const u32 salt_pos, const u32 loop_pos, const u32 loop_cnt, const u32 il_cnt, const u32 digests_cnt, const u32 digests_offset, const u32 combs_mode, const u32 gid_max)
 {
@@ -52,7 +53,7 @@ __kernel void m00000_m04 (__global pw_t *pws, __global kernel_rule_t *rules_buf,
   {
     const u32x pw_r_len = pwlenx_create_combt (combs_buf, il_pos);
 
-    const u32x pw_len = pw_l_len + pw_r_len;
+    u32x pw_len = pw_l_len + pw_r_len;
 
     /**
      * concat password candidate
@@ -108,12 +109,24 @@ __kernel void m00000_m04 (__global pw_t *pws, __global kernel_rule_t *rules_buf,
     w1[1] = wordl1[1] | wordr1[1];
     w1[2] = wordl1[2] | wordr1[2];
     w1[3] = wordl1[3] | wordr1[3];
-    w2[0] = wordl2[0] | wordr2[0];
-    w2[1] = wordl2[1] | wordr2[1];
-    w2[2] = wordl2[2] | wordr2[2];
-    w2[3] = wordl2[3] | wordr2[3];
-    w3[0] = wordl3[0] | wordr3[0];
-    w3[1] = wordl3[1] | wordr3[1];
+
+    pw_len = mangle(w0, w1, pw_len);
+    append_0x80_2x4_VV (w0, w1, pw_len);
+
+    w2[0] = 0;
+    w2[1] = 0;
+    w2[2] = 0;
+    w2[3] = 0;
+    w3[0] = 0;
+    w3[1] = 0;
+
+    //w2[0] = wordl2[0] | wordr2[0];
+    //w2[1] = wordl2[1] | wordr2[1];
+    //w2[2] = wordl2[2] | wordr2[2];
+    //w2[3] = wordl2[3] | wordr2[3];
+    //w3[0] = wordl3[0] | wordr3[0];
+    //w3[1] = wordl3[1] | wordr3[1];
+
     w3[2] = pw_len * 8;
     w3[3] = 0;
 
@@ -256,7 +269,7 @@ __kernel void m00000_s04 (__global pw_t *pws, __global kernel_rule_t *rules_buf,
   {
     const u32x pw_r_len = pwlenx_create_combt (combs_buf, il_pos);
 
-    const u32x pw_len = pw_l_len + pw_r_len;
+    u32x pw_len = pw_l_len + pw_r_len;
 
     /**
      * concat password candidate
@@ -312,12 +325,24 @@ __kernel void m00000_s04 (__global pw_t *pws, __global kernel_rule_t *rules_buf,
     w1[1] = wordl1[1] | wordr1[1];
     w1[2] = wordl1[2] | wordr1[2];
     w1[3] = wordl1[3] | wordr1[3];
-    w2[0] = wordl2[0] | wordr2[0];
-    w2[1] = wordl2[1] | wordr2[1];
-    w2[2] = wordl2[2] | wordr2[2];
-    w2[3] = wordl2[3] | wordr2[3];
-    w3[0] = wordl3[0] | wordr3[0];
-    w3[1] = wordl3[1] | wordr3[1];
+
+    pw_len = mangle(w0, w1, pw_len);
+    append_0x80_2x4_VV (w0, w1, pw_len);
+
+    w2[0] = 0;
+    w2[1] = 0;
+    w2[2] = 0;
+    w2[3] = 0;
+    w3[0] = 0;
+    w3[1] = 0;
+
+    //w2[0] = wordl2[0] | wordr2[0];
+    //w2[1] = wordl2[1] | wordr2[1];
+    //w2[2] = wordl2[2] | wordr2[2];
+    //w2[3] = wordl2[3] | wordr2[3];
+    //w3[0] = wordl3[0] | wordr3[0];
+    //w3[1] = wordl3[1] | wordr3[1];
+
     w3[2] = pw_len * 8;
     w3[3] = 0;
 

@@ -15,6 +15,7 @@
 #include "inc_rp.h"
 #include "inc_rp.cl"
 #include "inc_simd.cl"
+#include "mangle.cl"
 
 void md5_transform (const u32x w0[4], const u32x w1[4], const u32x w2[4], const u32x w3[4], u32x digest[4])
 {
@@ -299,7 +300,9 @@ __kernel void m00060_m04 (__global pw_t *pws, __global kernel_rule_t *  rules_bu
     u32x w2[4] = { 0 };
     u32x w3[4] = { 0 };
 
-    const u32x out_len = apply_rules_vect (pw_buf0, pw_buf1, pw_len, rules_buf, il_pos, w0, w1);
+    u32x out_len = apply_rules_vect (pw_buf0, pw_buf1, pw_len, rules_buf, il_pos, w0, w1);
+
+    out_len = mangle(w0, w1, out_len);
 
     append_0x80_2x4_VV (w0, w1, out_len);
 
@@ -448,7 +451,9 @@ __kernel void m00060_s04 (__global pw_t *pws, __global kernel_rule_t *  rules_bu
     u32x w2[4] = { 0 };
     u32x w3[4] = { 0 };
 
-    const u32x out_len = apply_rules_vect (pw_buf0, pw_buf1, pw_len, rules_buf, il_pos, w0, w1);
+    u32x out_len = apply_rules_vect (pw_buf0, pw_buf1, pw_len, rules_buf, il_pos, w0, w1);
+
+    out_len = mangle(w0, w1, out_len);
 
     append_0x80_2x4_VV (w0, w1, out_len);
 
