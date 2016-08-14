@@ -76,6 +76,7 @@ double TARGET_MS_PROFILE[4]     = { 2, 12, 96, 480 };
 #define INCREMENT               0
 #define INCREMENT_MIN           1
 #define INCREMENT_MAX           PW_MAX
+#define MANGLE                  0
 #define SEPARATOR               ':'
 #define BITMAP_MIN              16
 #define BITMAP_MAX              24
@@ -447,6 +448,7 @@ const char *USAGE_BIG[] =
   " -i, --increment               |      | Enable mask increment mode                           |",
   "     --increment-min           | Num  | Start mask incrementing at X                         | --increment-min=4",
   "     --increment-max           | Num  | Stop mask incrementing at X                          | --increment-max=8",
+  "     --mangle                  |      | Mangle password before hashing                       |",
   "",
   "- [ Hash modes ] -",
   "",
@@ -1816,31 +1818,43 @@ static void status_benchmark ()
  * hashcat -only- functions
  */
 
-static void generate_source_kernel_filename (const uint attack_exec, const uint attack_kern, const uint kern_type, char *shared_dir, char *source_file)
+static void generate_source_kernel_filename (const uint attack_exec, const uint attack_kern, const uint kern_type, uint mangle, char *shared_dir, char *source_file)
 {
+  char const * postfix = "";
+  if (mangle == 1)
+  {
+    postfix = "_m";
+  }
+
   if (attack_exec == ATTACK_EXEC_INSIDE_KERNEL)
   {
     if (attack_kern == ATTACK_KERN_STRAIGHT)
-      snprintf (source_file, 255, "%s/OpenCL/m%05d_a0.cl", shared_dir, (int) kern_type);
+      snprintf (source_file, 255, "%s/OpenCL/m%05d_a0%s.cl", shared_dir, (int) kern_type, postfix);
     else if (attack_kern == ATTACK_KERN_COMBI)
-      snprintf (source_file, 255, "%s/OpenCL/m%05d_a1.cl", shared_dir, (int) kern_type);
+      snprintf (source_file, 255, "%s/OpenCL/m%05d_a1%s.cl", shared_dir, (int) kern_type, postfix);
     else if (attack_kern == ATTACK_KERN_BF)
-      snprintf (source_file, 255, "%s/OpenCL/m%05d_a3.cl", shared_dir, (int) kern_type);
+      snprintf (source_file, 255, "%s/OpenCL/m%05d_a3%s.cl", shared_dir, (int) kern_type, postfix);
   }
   else
     snprintf (source_file, 255, "%s/OpenCL/m%05d.cl", shared_dir, (int) kern_type);
 }
 
-static void generate_cached_kernel_filename (const uint attack_exec, const uint attack_kern, const uint kern_type, char *profile_dir, const char *device_name_chksum, char *cached_file)
+static void generate_cached_kernel_filename (const uint attack_exec, const uint attack_kern, const uint kern_type, uint mangle, char *profile_dir, const char *device_name_chksum, char *cached_file)
 {
+  char const * postfix = "";
+  if (mangle == 1)
+  {
+    postfix = "_m";
+  }
+
   if (attack_exec == ATTACK_EXEC_INSIDE_KERNEL)
   {
     if (attack_kern == ATTACK_KERN_STRAIGHT)
-      snprintf (cached_file, 255, "%s/kernels/m%05d_a0.%s.kernel", profile_dir, (int) kern_type, device_name_chksum);
+      snprintf (cached_file, 255, "%s/kernels/m%05d_a0%s.%s.kernel", profile_dir, (int) kern_type, postfix, device_name_chksum);
     else if (attack_kern == ATTACK_KERN_COMBI)
-      snprintf (cached_file, 255, "%s/kernels/m%05d_a1.%s.kernel", profile_dir, (int) kern_type, device_name_chksum);
+      snprintf (cached_file, 255, "%s/kernels/m%05d_a1%s.%s.kernel", profile_dir, (int) kern_type, postfix, device_name_chksum);
     else if (attack_kern == ATTACK_KERN_BF)
-      snprintf (cached_file, 255, "%s/kernels/m%05d_a3.%s.kernel", profile_dir, (int) kern_type, device_name_chksum);
+      snprintf (cached_file, 255, "%s/kernels/m%05d_a3%s.%s.kernel", profile_dir, (int) kern_type, postfix, device_name_chksum);
   }
   else
   {
@@ -6243,6 +6257,7 @@ int main (int argc, char **argv)
   uint  increment                 = INCREMENT;
   uint  increment_min             = INCREMENT_MIN;
   uint  increment_max             = INCREMENT_MAX;
+  uint  mangle                    = MANGLE;
   char *cpu_affinity              = NULL;
   OCL_PTR *ocl                    = NULL;
   char *opencl_devices            = NULL;
@@ -6307,6 +6322,7 @@ int main (int argc, char **argv)
   #define IDX_INCREMENT                 'i'
   #define IDX_INCREMENT_MIN             0xff12
   #define IDX_INCREMENT_MAX             0xff13
+  #define IDX_MANGLE                    0xff80
   #define IDX_OUTFILE                   'o'
   #define IDX_OUTFILE_FORMAT            0xff14
   #define IDX_OUTFILE_AUTOHEX_DISABLE   0xff39
@@ -6434,6 +6450,7 @@ int main (int argc, char **argv)
     {"increment",                 no_argument,       0, IDX_INCREMENT},
     {"increment-min",             required_argument, 0, IDX_INCREMENT_MIN},
     {"increment-max",             required_argument, 0, IDX_INCREMENT_MAX},
+    {"mangle",                    no_argument,       0, IDX_MANGLE},
     {"custom-charset1",           required_argument, 0, IDX_CUSTOM_CHARSET_1},
     {"custom-charset2",           required_argument, 0, IDX_CUSTOM_CHARSET_2},
     {"custom-charset3",           required_argument, 0, IDX_CUSTOM_CHARSET_3},
@@ -6820,6 +6837,7 @@ int main (int argc, char **argv)
                                           increment_min_chgd        = 1;              break;
       case IDX_INCREMENT_MAX:             increment_max             = atoi (optarg);
                                           increment_max_chgd        = 1;              break;
+      case IDX_MANGLE:                    mangle                    = 1;              break;
       case IDX_CUSTOM_CHARSET_1:          custom_charset_1          = optarg;         break;
       case IDX_CUSTOM_CHARSET_2:          custom_charset_2          = optarg;         break;
       case IDX_CUSTOM_CHARSET_3:          custom_charset_3          = optarg;         break;
@@ -7643,6 +7661,7 @@ int main (int argc, char **argv)
   logfile_top_uint   (increment);
   logfile_top_uint   (increment_max);
   logfile_top_uint   (increment_min);
+  logfile_top_uint   (mangle);
   logfile_top_uint   (keyspace);
   logfile_top_uint   (left);
   logfile_top_uint   (logfile_disable);
@@ -16242,7 +16261,7 @@ int main (int argc, char **argv)
 
         char source_file[256] = { 0 };
 
-        generate_source_kernel_filename (attack_exec, attack_kern, kern_type, shared_dir, source_file);
+        generate_source_kernel_filename (attack_exec, attack_kern, kern_type, mangle, shared_dir, source_file);
 
         struct stat sst;
 
@@ -16259,7 +16278,7 @@ int main (int argc, char **argv)
 
         char cached_file[256] = { 0 };
 
-        generate_cached_kernel_filename (attack_exec, attack_kern, kern_type, profile_dir, device_name_chksum, cached_file);
+        generate_cached_kernel_filename (attack_exec, attack_kern, kern_type, mangle, profile_dir, device_name_chksum, cached_file);
 
         int cached = 1;
 
