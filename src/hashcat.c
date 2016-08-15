@@ -7916,6 +7916,32 @@ int main (int argc, char **argv)
                    dgst_pos1   = 3;
                    dgst_pos2   = 2;
                    dgst_pos3   = 1;
+                   mangle      = 0;
+                   break;
+
+      case     1:  hash_type   = HASH_TYPE_MD5;
+                   salt_type   = SALT_TYPE_NONE;
+                   attack_exec = ATTACK_EXEC_INSIDE_KERNEL;
+                   opts_type   = OPTS_TYPE_PT_GENERATE_LE
+                               | OPTS_TYPE_PT_ADD80
+                               | OPTS_TYPE_PT_ADDBITS14;
+                   kern_type   = KERN_TYPE_MD5;
+                   dgst_size   = DGST_SIZE_4_4;
+                   parse_func  = md5_parse_hash;
+                   sort_by_digest = sort_by_digest_4_4;
+                   opti_type   = OPTI_TYPE_ZERO_BYTE
+                               | OPTI_TYPE_PRECOMPUTE_INIT
+                               | OPTI_TYPE_PRECOMPUTE_MERKLE
+                               | OPTI_TYPE_MEET_IN_MIDDLE
+                               | OPTI_TYPE_EARLY_SKIP
+                               | OPTI_TYPE_NOT_ITERATED
+                               | OPTI_TYPE_NOT_SALTED
+                               | OPTI_TYPE_RAW_HASH;
+                   dgst_pos0   = 0;
+                   dgst_pos1   = 3;
+                   dgst_pos2   = 2;
+                   dgst_pos3   = 1;
+                   mangle      = 1;
                    break;
 
       case    10:  hash_type   = HASH_TYPE_MD5;
@@ -15392,6 +15418,8 @@ int main (int argc, char **argv)
         log_info ("Rules: %u", kernel_rules_cnt);
       }
 
+      log_info ("Mangle: %d", mangle);
+
       if (opti_type)
       {
         log_info ("Applicable Optimizers:");
@@ -17595,6 +17623,7 @@ int main (int argc, char **argv)
         char *hash_type = strhashtype (data.hash_mode); // not a bug
 
         log_info ("Hashtype: %s", hash_type);
+        log_info ("Mangle: %d", mangle);
         log_info ("");
       }
     }
