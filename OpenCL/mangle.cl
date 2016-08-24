@@ -1,5 +1,10 @@
+#define _MD5_
+
+#include "inc_hash_constants.h"
+#include "inc_hash_functions.cl"
+
 // Domain to use for mangling
-__constant u8 domain[] = "flypig.co.uk";
+__constant u8 domain[] = "linkedin.com";
 __constant u32x domain_len = 12;
 
 // Characters used for base64 encoding
