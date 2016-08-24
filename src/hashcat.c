@@ -7916,7 +7916,7 @@ int main (int argc, char **argv)
                    dgst_pos1   = 3;
                    dgst_pos2   = 2;
                    dgst_pos3   = 1;
-                   mangle      = 0;
+//                   mangle      = 0;
                    break;
 
       case     1:  hash_type   = HASH_TYPE_MD5;
@@ -7941,7 +7941,7 @@ int main (int argc, char **argv)
                    dgst_pos1   = 3;
                    dgst_pos2   = 2;
                    dgst_pos3   = 1;
-                   mangle      = 1;
+//                   mangle      = 1;
                    break;
 
       case    10:  hash_type   = HASH_TYPE_MD5;
