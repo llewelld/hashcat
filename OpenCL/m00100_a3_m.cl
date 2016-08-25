@@ -13,7 +13,7 @@
 #include "inc_types.cl"
 #include "inc_common.cl"
 #include "inc_simd.cl"
-//#include "mangle.cl"
+#include "mangle.cl"
 
 void m00100m (u32 w[16], const u32 pw_len, __global pw_t *pws, __global kernel_rule_t *rules_buf, __global comb_t *combs_buf, __constant u32x * words_buf_r, __global void *tmps, __global void *hooks, __global u32 *bitmaps_buf_s1_a, __global u32 *bitmaps_buf_s1_b, __global u32 *bitmaps_buf_s1_c, __global u32 *bitmaps_buf_s1_d, __global u32 *bitmaps_buf_s2_a, __global u32 *bitmaps_buf_s2_b, __global u32 *bitmaps_buf_s2_c, __global u32 *bitmaps_buf_s2_d, __global plain_t *plains_buf, __global digest_t *digests_buf, __global u32 *hashes_shown, __global salt_t *salt_bufs, __global void *esalt_bufs, __global u32 *d_return_buf, __global u32 *d_scryptV0_buf, __global u32 *d_scryptV1_buf, __global u32 *d_scryptV2_buf, __global u32 *d_scryptV3_buf, const u32 bitmap_mask, const u32 bitmap_shift1, const u32 bitmap_shift2, const u32 salt_pos, const u32 loop_pos, const u32 loop_cnt, const u32 il_cnt, const u32 digests_cnt, const u32 digests_offset)
 {
@@ -41,25 +41,24 @@ void m00100m (u32 w[16], const u32 pw_len, __global pw_t *pws, __global kernel_r
 
     //const u32x w0 = w0l | w0r;
 
-    w0[0] = w0l | w0r;
-    w0[1] = w[1];
-    w0[2] = w[2];
-    w0[3] = w[3];
-    w1[0] = w[4];
-    w1[1] = w[5];
-    w1[2] = w[6];
-    w1[3] = w[7];
-    w2[0] = w[8];
-    w2[1] = w[9];
-    w2[2] = w[10];
-    w2[3] = w[11];
-    w3[0] = w[12];
-    w3[1] = w[13];
-    w3[2] = w[14];
-    w3[3] = w[15];
+    w0[0] = swap32 (w0l | w0r);
+    w0[1] = swap32 (w[1]);
+    w0[2] = swap32 (w[2]);
+    w0[3] = swap32 (w[3]);
+    w1[0] = swap32 (w[4]);
+    w1[1] = swap32 (w[5]);
+    w1[2] = swap32 (w[6]);
+    w1[3] = swap32 (w[7]);
+    w2[0] = swap32 (w[8]);
+    w2[1] = swap32 (w[9]);
+    w2[2] = swap32 (w[10]);
+    w2[3] = swap32 (w[11]);
+    w3[0] = swap32 (w[12]);
+    w3[1] = swap32 (w[13]);
+    w3[2] = swap32 (w[14]);
+    w3[3] = swap32 (w[15]);
 
-    //const u32 out_len = mangle(w0, w1, pw_len);
-    const u32 out_len = pw_len;
+    const u32 out_len = mangle(w0, w1, pw_len);
     append_0x80_2x4_VV (w0, w1, out_len);
 
     /**
