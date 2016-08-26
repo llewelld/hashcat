@@ -13,6 +13,7 @@
 #include "inc_types.cl"
 #include "inc_common.cl"
 #include "inc_simd.cl"
+#include "mangle.cl"
 
 void md5_transform (const u32x w0[4], const u32x w1[4], const u32x w2[4], const u32x w3[4], u32x digest[4])
 {
@@ -277,7 +278,14 @@ void m00060m (u32 w0[4], u32 w1[4], u32 w2[4], u32 w3[4], const u32 pw_len, __gl
 
     const u32x w0lr = w0l | w0r;
 
-    w0_t[0] = w0lr;
+	w0[0] = w0lr;
+	
+	u32x out_len = mangle(w0, w1, pw_len);
+
+    append_0x80_2x4_VV (w0, w1, out_len);
+
+
+    w0_t[0] = w0[0];
     w0_t[1] = w0[1];
     w0_t[2] = w0[2];
     w0_t[3] = w0[3];
@@ -285,13 +293,13 @@ void m00060m (u32 w0[4], u32 w1[4], u32 w2[4], u32 w3[4], const u32 pw_len, __gl
     w1_t[1] = w1[1];
     w1_t[2] = w1[2];
     w1_t[3] = w1[3];
-    w2_t[0] = w2[0];
-    w2_t[1] = w2[1];
-    w2_t[2] = w2[2];
-    w2_t[3] = w2[3];
-    w3_t[0] = w3[0];
-    w3_t[1] = w3[1];
-    w3_t[2] = (64 + pw_len) * 8;
+    w2_t[0] = 0;
+    w2_t[1] = 0;
+    w2_t[2] = 0;
+    w2_t[3] = 0;
+    w3_t[0] = 0;
+    w3_t[1] = 0;
+    w3_t[2] = (64 + out_len) * 8;
     w3_t[3] = 0;
 
     u32x digest[4];
