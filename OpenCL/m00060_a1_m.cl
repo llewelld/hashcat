@@ -295,7 +295,7 @@ __kernel void m00060_m04 (__global pw_t *pws, __global kernel_rule_t *rules_buf,
   {
     const u32x pw_r_len = pwlenx_create_combt (combs_buf, il_pos);
 
-    const u32x pw_len = pw_l_len + pw_r_len;
+    u32x pw_len = pw_l_len + pw_r_len;
 
     /**
      * concat password candidate
@@ -497,7 +497,7 @@ __kernel void m00060_s04 (__global pw_t *pws, __global kernel_rule_t *rules_buf,
   {
     const u32x pw_r_len = pwlenx_create_combt (combs_buf, il_pos);
 
-    const u32x pw_len = pw_l_len + pw_r_len;
+    u32x pw_len = pw_l_len + pw_r_len;
 
     /**
      * concat password candidate
